@@ -82,3 +82,7 @@ collect(['setup', 'filters', 'acf'])
 */
 
 add_theme_support('sage');
+
+
+
+

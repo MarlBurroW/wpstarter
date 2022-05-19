@@ -9,13 +9,18 @@ const main = async (err) => {
     console.error(err);
   }
 
-  ["cta", "header"].forEach((blockId) => {
+  ["cta"].forEach((blockId) => {
     const blocks = document.querySelectorAll(`.block.${blockId}`);
 
     if (blocks.length > 0) {
-      for (let i = 0; i < blocks.length; i++) {
-        const element = blocks[i];
-      }
+      import(`./blocks/${blockId}`).then((module) => {
+        const blockScript = module.default;
+
+        for (let i = 0; i < blocks.length; i++) {
+          const block = blocks[i];
+          blockScript.run(block);
+        }
+      });
     }
   });
 };
