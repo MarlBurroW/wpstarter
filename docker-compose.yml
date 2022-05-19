@@ -1,0 +1,62 @@
+version: "3"
+
+networks:
+  wpstarter:
+
+services:
+  site:
+    user: 1000:1000
+    build:
+      context: .
+      dockerfile: ./docker/site.dockerfile
+    ports:
+      - 4080:80
+    volumes:
+      - .:/var/www/app:delegated
+    depends_on:
+      - mysql
+    networks:
+      - wpstarter
+
+  mysql:
+    image: mysql
+    restart: unless-stopped
+    tty: true
+    # ports:
+    #   - 17306:3306
+    environment:
+      MYSQL_DATABASE: wpstarter
+      MYSQL_USER: wpstarter
+      MYSQL_PASSWORD: secret
+      MYSQL_ROOT_PASSWORD: secret
+    networks:
+      - wpstarter
+    volumes:
+      - mysql-data:/var/lib/mysql
+
+  phpmyadmin:
+    image: phpmyadmin
+    depends_on:
+      - mysql
+    ports:
+      - 4081:80
+    environment:
+      PMA_HOST: mysql
+      PMA_USER: wpstarter
+      PMA_PASSWORD: secret
+    networks:
+      - wpstarter
+
+  frontend:
+    image: node:16.0.0
+    ports:
+      - 4083:4083
+    volumes:
+      - .:/app
+    working_dir: /app/web/app/themes/wpstarter
+    networks:
+      - wpstarter
+    command: yarn dev
+
+volumes:
+  mysql-data:
